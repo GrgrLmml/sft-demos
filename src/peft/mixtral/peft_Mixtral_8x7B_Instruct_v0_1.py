@@ -3,6 +3,7 @@
 # To add a new markdown cell, type '# %% [markdown]'
 # %%
 import os
+my_token =  os.environ.get("HUGGINGFACE_HUB_TOKEN")
 
 #  [markdown]
 # ## Finetuned on 4x A6000s
@@ -52,7 +53,7 @@ from transformers import (
 
 # %%
 tokenizer = AutoTokenizer.from_pretrained(
-    "mistralai/Mixtral-8x7B-v0.1", use_fast=True, trust_remote_code=True
+    "mistralai/Mixtral-8x7B-v0.1", use_fast=True, trust_remote_code=True, token=my_token
 )
 tokenizer.chat_template = "{{ bos_token }}{% for message in messages %}{% if (message['role'] == 'user') != (loop.index0 % 2 == 0) %}{{ raise_exception('Conversation roles must alternate user/assistant/user/assistant/...') }}{% endif %}{% if message['role'] == 'user' %}{{ '[INST] ' + message['content'] + ' [/INST] ' }}{% elif message['role'] == 'assistant' %}{{ message['content'] + eos_token + ' ' }}{% else %}{{ raise_exception('Only user and assistant roles are supported!') }}{% endif %}{% endfor %}"
 tokenizer.pad_token = tokenizer.unk_token
@@ -249,6 +250,7 @@ model = AutoModelForCausalLM.from_pretrained(
     torch_dtype=torch.bfloat16,
     device_map="auto",
     trust_remote_code=True,
+    token=my_token
 )
 model.config.use_cache = False
 
